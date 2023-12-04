@@ -36,7 +36,6 @@ function getTopLine(previousLine, currentLine) {
 
     for (let i = 0; i < currentLine.length; i++) {
         const current = currentLine[i];
-        const previous = currentLine[i - 1];
         const next = currentLine[i + 1];
         if (isNaN(current) === false && current !== '') {
             if (next && specialChars.test(next) === true) {
