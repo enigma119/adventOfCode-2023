@@ -1,59 +1,32 @@
 import * as fs from 'fs';
 const input = fs.readFileSync('./input.txt', 'utf8').split('\n');
 
-
-const getList = (line) => {
+const getLists = (line) => {
     const [listIHave, winningList] = line.split(': ').pop().split(' | ').map(list => list.split(' ').filter(Boolean));
-    const winningNumbers = listIHave.filter(item => winningList.includes(item));
+    const winningSet = new Set(winningList);
+    const winningNumbers = listIHave.filter(item => winningSet.has(item));
     return winningNumbers;
-}
-
-const result = () => {
-    const winningList = []
-    input.reduce((worth, line, index) => {
-        const winningNumbers = getList(line);
-        winningList.push(winningNumbers);
-        worth += getWorth(winningNumbers);
-        console.log('winningNumbers', index + 1, winningNumbers, 'worth', worth);
-        // const copies = getCopies(index, winningNumbers);
-        return worth;
-    }, 0);
 }
 
 const getWorth = (winningNumbers) => {
     return winningNumbers.length > 0 ? Math.pow(2, winningNumbers.length - 1) : 0;
 }
 
-const getCopies = (winningList) => {
-    // example [[1,2, 3, 4], [1, 2], [1,2], [1]]
-    // in example we have 4 original 
-    // find the copies possible for every original
-    // 1. find the original
-    // 2. find the copies
-    // 3. find the subcopies
+const result = () => {
+    let cardCopies = new Array(input.length).fill(1);
 
+    const worth = input.reduce((totalWorth, line, index) => {
+        const winningNumbers = getLists(line);
+        if (winningNumbers.length > 0 && cardCopies[index + winningNumbers.length]) {
+            for (let i = index + 1; i < index + winningNumbers.length + 1; i++) {
+                cardCopies[i] += cardCopies[index]
+            }
+        }
+        return totalWorth + getWorth(winningNumbers);
+    }, 0);
 
-
-    let count = 0;
-
-    // original
-    // for (let i = 0; i < winningList.length; i++) {
-    //     count +=1; // [2, 3, 4]
-    //     // copies
-    //     for (let j = 1; j < winningList[0].length; j++) {
-
-    //         count +=1; // 
-    //         // subcopies
-    //         for (let k = 0; k < winningList[0].length; k++) {
-    //             count +=1;
-    //         }
-
-    //     }
-    // }
-
+    const sum = cardCopies.reduce((sum, item) => sum + item, 0)
+    return { worth, sum };
 }
-
-
-
 
 console.log(result())
